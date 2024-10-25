@@ -5,6 +5,8 @@ library(tidymodels)
 library(modelr)
 library(yardstick)
 
+load('data/biomarker-clean.RData')
+
 biomarker_clean
 
 #problem 3
