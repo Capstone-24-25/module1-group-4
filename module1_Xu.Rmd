@@ -1,0 +1,19 @@
+---
+title: "module1_Xu"
+author: "Sumeng Xu"
+date: "2024-10-25"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+Dataset description:
+
+The data for this analysis were obtained from Hewitson et al. (2021), focusing on blood biomarkers for autism spectrum disorder (ASD) through proteomic analysis using the SOMAScan™ platform. The study involved serum samples from 154 boys: 76 with ASD and 78 typically developing (TD) controls, aged 18 months to 8 years. The mean age for the ASD group was 5.6 years (SD = 1.7), and for the TD group, 5.7 years (SD = 2.0). They were analyzed to identify possible early biological markers for ASD. The data were collect through fasting blood collection, under the condition that all subjects were healthy and no clinical symptoms. Demographic characteristics like age and ethnicity were collected. The analysis initially considered 1,317 proteins, with 192 excluded due to quality control issues, leaving 1,125 proteins for analysis. Data processing included random forest, t-test, and correlation based methods. With outliers clipped at ±3 standard deviations.
+
+```{r}
+biomarker_clean
+
+```
