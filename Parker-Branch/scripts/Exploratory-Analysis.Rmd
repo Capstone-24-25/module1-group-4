@@ -12,11 +12,11 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 library(tidyverse)
 library(tidymodels)
-raw_data <- read.csv("C:/Users/parke/Documents/GitHub/module1-group-4/data/biomarker-raw.csv")
+raw_data <- read.csv("../../data/biomarker-raw.csv")
 ```
 
-
 We can see below that the distributions of these protein levels are quite skewed. By applying a log transformation to the values, it compresses the data and typically makes data more normally distributed. It also makes visualizations easier to read with the smaller numbers.
+
 ```{r}
 
 num_columns <- length(raw_data)
@@ -39,10 +39,6 @@ for (i in 1:ncol(sample_proteins)) {
 }
 
 ```
-
-
-
-
 
 ```{r}
 load('test-biomarker-clean.RData')
@@ -92,26 +88,5 @@ ggplot(outlier_summary2, aes(x = group, y = mean_outliers, fill = group)) +
 
 
 ```
+
 The Typically developed group of the boys has a higher mean number of outliers per person than the ASD group.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
