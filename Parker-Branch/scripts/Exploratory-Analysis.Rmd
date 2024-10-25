@@ -1,0 +1,117 @@
+---
+title: "Data-exploration"
+author: "Parker Reedy"
+date: "2024-10-25"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(tidymodels)
+raw_data <- read.csv("C:/Users/parke/Documents/GitHub/module1-group-4/data/biomarker-raw.csv")
+```
+
+
+We can see below that the distributions of these protein levels are quite skewed. By applying a log transformation to the values, it compresses the data and typically makes data more normally distributed. It also makes visualizations easier to read with the smaller numbers.
+```{r}
+
+num_columns <- length(raw_data)
+random_columns <- sample(2:num_columns, 3)
+sample_proteins <- raw_data[, random_columns]
+sample_proteins <- sample_proteins[-1,]
+sample_proteins <- sample_proteins %>%
+  mutate(across(everything(), ~ as.numeric(as.character(.))))
+
+
+for (i in 1:ncol(sample_proteins)) {
+  protein_values <- as.numeric(as.character(sample_proteins[, i]))
+  
+  plot <- ggplot(data.frame(value=sample_proteins[, i]), aes(x=value)) + 
+    geom_density(fill='blue', alpha=0.6) +
+    labs(title=colnames(sample_proteins)[i], x='Protein Levels') +
+    scale_x_continuous(breaks = pretty(range(protein_values, na.rm=T), n = 5)) +
+    theme_minimal()
+  print(plot)
+}
+
+```
+
+
+
+
+
+```{r}
+load('test-biomarker-clean.RData')
+
+#biomarker_clean
+
+identify_outliers <- function(x) {
+  abs_x <- abs(x)
+  mean_x <- mean(abs_x, na.rm=T)
+  sd_x <- sd(abs_x, na.rm=T)
+  outlier_threshold <- mean_x + 3 * sd_x
+  return(abs_x > outlier_threshold)
+}
+
+
+outlier_info <- biomarker_clean %>%
+  select(-group, -ados) %>%
+  mutate(across(everything(), identify_outliers)) %>%
+  rowwise() %>%
+  summarize(outliers_count = sum(c_across(everything()), na.rm=T),
+            .groups = 'drop') %>%
+  mutate(subject = row_number())
+
+
+biomarker_with_outliers <- biomarker_clean %>%
+  bind_cols(outlier_info)
+
+
+#biomarker_with_outliers[,c('group', 'ados', 'outliers_count', 'subject')]
+
+outlier_summary <- biomarker_with_outliers %>% 
+  group_by(group) %>%
+  summarize(total_outliers = sum(outliers_count),
+            .groups = 'drop')
+
+outlier_summary2 <- biomarker_with_outliers %>%
+  group_by(group) %>%
+  summarize(mean_outliers = mean(outliers_count), .groups = 'drop')
+
+# Plot aggregated data
+ggplot(outlier_summary2, aes(x = group, y = mean_outliers, fill = group)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Mean Number of Outliers by Group", 
+       x = "Group", 
+       y = "Mean Number of Outliers") +
+  theme_minimal()
+
+
+```
+The Typically developed group of the boys has a higher mean number of outliers per person than the ASD group.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
