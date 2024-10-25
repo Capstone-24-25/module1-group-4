@@ -31,7 +31,11 @@ The data used in this study was obtained from voluntary participants who provide
 
 ## Summary of published analysis
 
-Summarize the methodology of the paper in 1-3 paragraphs. You need not explain the methods in depth as we did in class; just indicate what methods were used and how they were combined. If possible, include a diagram that depicts the methodological design. (Quarto has support for [GraphViz and Mermaid flowcharts](https://quarto.org/docs/authoring/diagrams.html).) Provide key results: the proteins selected for the classifier and the estimated accuracy.
+Serum samples from boys with ASD and typically developing (TD) controls were analyzed using the SOMAScan™ platform, measuring 1,125 proteins after quality control. The methodology involved three primary statistical approaches to identify potential biomarkers: Random Forest (RF), t-tests, and correlation analysis with ADOS scores, a measure of ASD severity.
+
+In the Random Forest method, feature importance scores were calculated to determine the most relevant proteins for distinguishing ASD from TD. The t-tests compared protein levels between the two groups to identify significant differences, while the correlation analysis sought proteins associated with ASD severity. The study combined the three methods by identifying the top 10 predictive proteins from each and cross-comparing them to find overlapping proteins consistently showing high importance. Five proteins were identified as a core set, and an additional 13 proteins were tested one by one to see if they increased the predictive value of the AUC using logistic regression. The classifier's performance was evaluated with repeated random splits of training and testing data.
+
+The five core proteins are: mitogen-activated protein kinase 14 (MAPK14), immunoglobulin D (IgD), dermatopontin (DERM), ephrin type-B receptor 2 (EPHB2), and soluble urokinase-type plasminogen activator receptor (suPAR). Four additional proteins—receptor tyrosine kinase-like orphan receptor 1 (ROR1), platelet receptor Gl24 (GI24), eukaryotic translation initiation factor 4H (elF-4H), and arylsulfatase B (ARSB)—were selected to enhance predictive power. The final classifier, comprising these nine proteins, achieved an estimated accuracy with an area under the receiver operating characteristic curve (AUC) of 0.86, indicating strong discriminative ability for identifying ASD.
 
 ## Findings
 
