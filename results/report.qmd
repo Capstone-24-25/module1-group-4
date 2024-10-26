@@ -1,7 +1,7 @@
 ---
 title: "Biomarkers of ASD"
-subtitle: "If you want a subtitle put it here"
-author: "List names here"
+subtitle: "Module-1 Group 4"
+author: "Sophia Mirrashidi, Jiaxin Su, Sumeng Xu, Parker Reedy"
 date: last-modified
 published-title: "Updated"
 editor: visual
@@ -13,8 +13,6 @@ execute:
   echo: false
   cache: true
 ---
-
-Use this as a template. Keep the headers and remove all other text. In all, your report can be quite short. When it is complete, render and then push changes to your team repository.
 
 ```{r}
 # load any other packages and read data here
@@ -39,13 +37,27 @@ The five core proteins are: mitogen-activated protein kinase 14 (MAPK14), immuno
 
 ## Findings
 
-Summarize your findings here. I've included some subheaders in a way that seems natural to me; you can structure this section however you like.
-
 ### Impact of preprocessing and outliers
 
-Tasks 1-2
+Task 1
+
+Below are three randomly selected proteins from our raw data, and the distributions that they follow. We can see below that the distributions of these protein levels are quite skewed. By applying a log transformation to the values, it compresses the data and typically makes data more normally distributed. It also makes visualizations easier to read with the smaller numbers.
+
+![](images/clipboard-3580837191.png){width="477"}
+
+![](images/clipboard-1254653915.png){width="477"}
+
+![](images/clipboard-2037070351.png){width="476"}
+
+Task 2
+
+For task 2, we temporarily removed the outlier trimming from preprocessing and looked at the number of outliers per subject. We found that out of the 5 subjects with the highest number of outliers, 3 of them were from the Typically developed group. After finding this, we wanted to check the mean number of protein value outliers by group and found that on average a subject in group TD had 22.78 outlier values while the ASD group had on average 18.36 outliers.
+
+![](images/clipboard-2172377393.png)
 
 ### Methodological variations
+
+Task 3
 
 *Analysis on a training partition:*
 
@@ -60,5 +72,7 @@ After increasing the number of top predictive proteins from 10 to 16, we observe
 We ranked the proteins based on both t-test significance and Random Forest importance, resulting in a more balanced selection of predictive features. Unlike a strict intersection, which only retains proteins highly ranked in both methods, the fuzzy approach allows moderately important proteins from either method to be included, creating a more inclusive set of features.
 
 ### Improved classifier
+
+Task 4
 
 Our new approach, was to use LASSO to select the important proteins in order to make a simpler yet comparable model instead of the Random Forest method. We fit binomial LASSO model with alpha = 1 and 10 cross-validation folds. We then used this model to choose the top 10 proteins with the highest absolute valued coefficients. Then, we took the common proteins between the multiple t-test and LASSO model for our final panel. We ended with a simpler model of 3 proteins that was comparable to the class-analysis: DERM, IgD, and FSTL1. This gave us an accuracy of 83.9%, Sensitivity = 87.5%, Specificity = 80%, Area under the ROC = 0.879.

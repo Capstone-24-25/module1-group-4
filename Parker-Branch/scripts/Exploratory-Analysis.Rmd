@@ -18,7 +18,7 @@ raw_data <- read.csv("../../data/biomarker-raw.csv")
 We can see below that the distributions of these protein levels are quite skewed. By applying a log transformation to the values, it compresses the data and typically makes data more normally distributed. It also makes visualizations easier to read with the smaller numbers.
 
 ```{r}
-
+set.seed(1234)
 num_columns <- length(raw_data)
 random_columns <- sample(2:num_columns, 3)
 sample_proteins <- raw_data[, random_columns]
@@ -43,8 +43,6 @@ for (i in 1:ncol(sample_proteins)) {
 ```{r}
 load('test-biomarker-clean.RData')
 
-#biomarker_clean
-
 identify_outliers <- function(x) {
   abs_x <- abs(x)
   mean_x <- mean(abs_x, na.rm=T)
@@ -52,7 +50,6 @@ identify_outliers <- function(x) {
   outlier_threshold <- mean_x + 3 * sd_x
   return(abs_x > outlier_threshold)
 }
-
 
 outlier_info <- biomarker_clean %>%
   select(-group, -ados) %>%
@@ -66,17 +63,20 @@ outlier_info <- biomarker_clean %>%
 biomarker_with_outliers <- biomarker_clean %>%
   bind_cols(outlier_info)
 
-
-#biomarker_with_outliers[,c('group', 'ados', 'outliers_count', 'subject')]
+sorted_df <- biomarker_with_outliers[,c('group', 'outliers_count', 'subject')]
+sorted_df <- sorted_df[order(-sorted_df$outliers_count), ]
+head(sorted_df, 5)
 
 outlier_summary <- biomarker_with_outliers %>% 
   group_by(group) %>%
   summarize(total_outliers = sum(outliers_count),
             .groups = 'drop')
 
+
 outlier_summary2 <- biomarker_with_outliers %>%
   group_by(group) %>%
   summarize(mean_outliers = mean(outliers_count), .groups = 'drop')
+
 
 # Plot aggregated data
 ggplot(outlier_summary2, aes(x = group, y = mean_outliers, fill = group)) +
