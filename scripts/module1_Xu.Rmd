@@ -1,0 +1,155 @@
+---
+title: "module1_Xu"
+author: "Sumeng Xu"
+date: "2024-10-25"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+Dataset description:
+
+The data for this analysis were obtained from Hewitson et al. (2021), focusing on blood biomarkers for autism spectrum disorder (ASD) through proteomic analysis using the SOMAScan™ platform. The study involved serum samples from 154 boys: 76 with ASD and 78 typically developing (TD) controls, aged 18 months to 8 years. The mean age for the ASD group was 5.6 years (SD = 1.7), and for the TD group, 5.7 years (SD = 2.0). They were analyzed to identify possible early biological markers for ASD. The data were collect through fasting blood collection, under the condition that all subjects were healthy and no clinical symptoms. Demographic characteristics like age and ethnicity were collected. The analysis initially considered 1,317 proteins, with 192 excluded due to quality control issues, leaving 1,125 proteins for analysis. Data processing included random forest, t-test, and correlation based methods. With outliers clipped at ±3 standard deviations.
+
+Summary of Published analysis:
+
+Serum samples from boys with ASD and typically developing (TD) controls were analyzed using the SOMAScan™ platform, measuring 1,125 proteins after quality control. The methodology involved three primary statistical approaches to identify potential biomarkers: Random Forest (RF), t-tests, and correlation analysis with ADOS scores, a measure of ASD severity.
+
+In the Random Forest method, feature importance scores were calculated to determine the most relevant proteins for distinguishing ASD from TD. The t-tests compared protein levels between the two groups to identify significant differences, while the correlation analysis sought proteins associated with ASD severity. The study combined the three methods by identifying the top 10 predictive proteins from each and cross-comparing them to find overlapping proteins consistently showing high importance. Five proteins were identified as a core set, and an additional 13 proteins were tested one by one to see if they increased the predictive value of the AUC using logistic regression. The classifier's performance was evaluated with repeated random splits of training and testing data.
+
+The five core proteins are: mitogen-activated protein kinase 14 (MAPK14), immunoglobulin D (IgD), dermatopontin (DERM), ephrin type-B receptor 2 (EPHB2), and soluble urokinase-type plasminogen activator receptor (suPAR). Four additional proteins—receptor tyrosine kinase-like orphan receptor 1 (ROR1), platelet receptor Gl24 (GI24), eukaryotic translation initiation factor 4H (elF-4H), and arylsulfatase B (ARSB)—were selected to enhance predictive power. The final classifier, comprising these nine proteins, achieved an estimated accuracy with an area under the receiver operating characteristic curve (AUC) of 0.86, indicating strong discriminative ability for identifying ASD.
+
+```{r}
+library(tidyverse)
+library(infer)
+library(randomForest)
+library(tidymodels)
+library(modelr)
+library(yardstick)
+```
+```{r}
+biomarker_clean
+```
+
+question 3:
+
+```{r} 
+set.seed(101422)
+biomarker_split <- biomarker_clean %>% 
+  initial_split(prop = 0.8)
+training_data <- training(biomarker_split)
+testing_data <- testing(biomarker_split)
+```
+
+T test on Training Data
+```{r}
+
+# function to compute tests
+test_fn <- function(.df){
+  t_test(.df, 
+         formula = level ~ group,
+         order = c('ASD', 'TD'),
+         alternative = 'two-sided',
+         var.equal = F)
+}
+
+ttests_out <- training_data %>%
+  # drop ADOS score
+  select(-ados) %>%
+  # arrange in long format
+  pivot_longer(-group, 
+               names_to = 'protein', 
+               values_to = 'level') %>%
+  # nest by protein
+  nest(data = c(level, group)) %>% 
+  # compute t tests
+  mutate(ttest = map(data, test_fn)) %>%
+  unnest(ttest) %>%
+  # sort by p-value
+  arrange(p_value) %>%
+  # multiple testing correction
+  mutate(m = n(),
+         hm = log(m) + 1/(2*m) - digamma(1),
+         rank = row_number(),
+         p.adj = m*hm*p_value/rank)
+
+# select significant proteins
+proteins_s1 <- ttests_out %>%
+  slice_min(p.adj, n = 10) %>%
+  pull(protein)
+
+```
+Random Forest: 
+```{r}
+# store predictors and response separately
+predictors_train <- training_data %>%
+  select(-c(group, ados))
+
+response_train<- training_data %>% pull(group) %>% factor()
+
+# fit RF
+set.seed(101422)
+rf_out <- randomForest(x = predictors_train, 
+                       y = response_train, 
+                       ntree = 1000, 
+                       importance = T)
+
+# check errors
+rf_out$confusion
+
+# compute importance scores
+proteins_s2 <- rf_out$importance %>% 
+  as_tibble() %>%
+  mutate(protein = rownames(rf_out$importance)) %>%
+  slice_max(MeanDecreaseGini, n = 10) %>%
+  pull(protein)
+```
+
+Logistic Regression on Training Data:
+```{r}
+# select subset of interest
+proteins_sstar <- intersect(proteins_s1, proteins_s2)
+
+biomarker_sstar <- training_data %>%
+  select(group, any_of(proteins_sstar)) %>%
+  mutate(class = (group == 'ASD')) %>%
+  select(-group)
+
+# fit logistic regression model to training set
+fit <- glm(class ~ ., 
+           data = biomarker_sstar, 
+           family = 'binomial')
+
+# evaluate errors on test set
+testing_subset <- testing_data %>%
+  select(group, any_of(proteins_sstar)) %>%
+  mutate(class = (group == 'ASD'))
+
+# Make predictions and calculate metrics
+evaluation <- testing_subset %>%
+  # Predict probabilities using the fitted model
+  mutate(pred = predict(fit, newdata = ., type = 'response')) %>%
+  # Convert probabilities to binary class predictions with a threshold of 0.5
+  mutate(est = as.factor(ifelse(pred > 0.5, TRUE, FALSE)),
+         tr_c = as.factor(class))
+
+class_metrics <- metric_set(sensitivity, 
+                            specificity, 
+                            accuracy, 
+                            roc_auc)
+testing_subset %>%
+  # Predict probabilities using the fitted model
+  mutate(pred = predict(fit, newdata = ., type = 'response')) %>%
+  # Convert probabilities to binary class predictions based on a threshold of 0.5
+  mutate(est = as.factor(pred > 0.5), 
+         tr_c = as.factor(class)) %>%
+  # Calculate evaluation metrics using class_metrics
+  class_metrics(truth = tr_c, 
+                estimate = est, 
+                .pred = pred, 
+                event_level = 'second')
+
+```
+
