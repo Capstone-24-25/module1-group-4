@@ -35,7 +35,7 @@ Serum samples from boys with ASD and typically developing (TD) controls were ana
 
 In the Random Forest method, feature importance scores were calculated to determine the most relevant proteins for distinguishing ASD from TD. The t-tests compared protein levels between the two groups to identify significant differences, while the correlation analysis sought proteins associated with ASD severity. The study combined the three methods by identifying the top 10 predictive proteins from each and cross-comparing them to find overlapping proteins consistently showing high importance. Five proteins were identified as a core set, and an additional 13 proteins were tested one by one to see if they increased the predictive value of the AUC using logistic regression. The classifier's performance was evaluated with repeated random splits of training and testing data.
 
-The five core proteins are: mitogen-activated protein kinase 14 (MAPK14), immunoglobulin D (IgD), dermatopontin (DERM), ephrin type-B receptor 2 (EPHB2), and soluble urokinase-type plasminogen activator receptor (suPAR). Four additional proteins—receptor tyrosine kinase-like orphan receptor 1 (ROR1), platelet receptor Gl24 (GI24), eukaryotic translation initiation factor 4H (elF-4H), and arylsulfatase B (ARSB)—were selected to enhance predictive power. The final classifier, comprising these nine proteins, achieved an estimated accuracy with an area under the receiver operating characteristic curve (AUC) of 0.86, indicating strong discriminative ability for identifying ASD.
+The five core proteins are: mitogen-activated protein kinase 14 (MAPK14), immunoglobulin D (IgD), dermatopontin (DERM), ephrin type-B receptor 2 (EPHB2), and soluble urokinase-type plasminogen activator receptor (suPAR). Four additional proteins—receptor tyrosine kinase-like orphan receptor 1 (ROR1), platelet receptor Gl24 (GI24), eukaryotic translation initiation factor 4H (elF-4H), and arylsulfatase B (ARSB)—were selected to enhance predictive power. The final classifier, comprising these nine proteins, achieved an estimated accuracy with an area under the receiver operating characteristic curve (AUC) of 0.86, indicating strong discriminating ability for identifying ASD.
 
 ## Findings
 
@@ -47,7 +47,17 @@ Tasks 1-2
 
 ### Methodological variations
 
-Task 3
+*Analysis on a training partition:*
+
+xxx
+
+*Larger Number of top predictive proteins using each selection method:*
+
+After increasing the number of top predictive proteins from 10 to 16, we observed a significant improvement in the model's performance metrics. Accuracy of the model increased from 0.64 to 0.81, this indicates that the model became better at correctly classifying instances of both ASD and typically developing controls as more predictive proteins were included in the analysis. The area under the curve (AUC) also increased from 0.795 to 0.875, indicating a high classification accuracy. Sensitivity had a dramatic increase from 0.462 to 0.812. This means that the updated model is now much better at identifying individuals with Autism Spectrum Disorder (ASD), reducing the number of false negatives. While sensitivity improved, specificity slightly decreased from 0.833 to 0.8, indicating a marginally higher false positive rate. This trade-off is typical when increasing sensitivity, as the model becomes more inclusive in positive predictions.
+
+*Fuzzy Intersection:*
+
+We ranked the proteins based on both t-test significance and Random Forest importance, resulting in a more balanced selection of predictive features. Unlike a strict intersection, which only retains proteins highly ranked in both methods, the fuzzy approach allows moderately important proteins from either method to be included, creating a more inclusive set of features.
 
 ### Improved classifier
 
