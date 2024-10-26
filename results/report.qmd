@@ -51,4 +51,4 @@ Task 3
 
 ### Improved classifier
 
-Task 4
+Our new approach, was to use LASSO to select the important proteins in order to make a simpler yet comparable model instead of the Random Forest method. We fit binomial LASSO model with alpha = 1 and 10 cross-validation folds. We then used this model to choose the top 10 proteins with the highest absolute valued coefficients. Then, we took the common proteins between the multiple t-test and LASSO model for our final panel. We ended with a simpler model of 3 proteins that was comparable to the class-analysis: DERM, IgD, and FSTL1. This gave us an accuracy of 83.9%, Sensitivity = 87.5%, Specificity = 80%, Area under the ROC = 0.879.

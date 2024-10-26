@@ -4,8 +4,11 @@ library(randomForest)
 library(tidymodels)
 library(modelr)
 library(yardstick)
-load('data/biomarker-clean.RData')
 
+load('data/biomarker-clean.RData')
+install.packages('future')
+install.packages('tidymodels')
+install.packages('parallelly')
 ## MULTIPLE TESTING
 ####################
 
@@ -102,3 +105,21 @@ testing(biomarker_split) %>%
   class_metrics(estimate = est,
               truth = tr_c, pred,
               event_level = 'second')
+
+library(glmnet)
+x <- as.matrix(biomarker_clean %>% select(-group, -ados))
+y <- as.factor(biomarker_clean$group)
+
+# Set up and fit the Lasso model with cross-validation
+lasso_model <- cv.glmnet(x, y, alpha = 1, family = "binomial")  # Set family to "gaussian" if it's a regression task
+
+# Find the lambda value that gives minimum cross-validated error
+best_lambda <- lasso_model$lambda.min
+print(paste("Optimal lambda:", best_lambda))
+
+# Extract the coefficients at this lambda
+selected_coefficients <- coef(lasso_model, s = best_lambda)
+
+# View non-zero coefficients (selected features)
+selected_features <- selected_coefficients[selected_coefficients != 0]
+print(selected_features)
