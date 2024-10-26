@@ -3,15 +3,14 @@ library(infer)
 library(randomForest)
 library(tidymodels)
 library(modelr)
-library(glmnet)
 library(yardstick)
 
-load('./data/biomarker-clean.RData')
+load('data/biomarker-clean.RData')
 
 biomarker_clean
-################# Question 3 #####################
 
-set.seed(1078422)
+#----------------------------problem 3----------------------
+set.seed(101422)
 biomarker_split <- biomarker_clean %>% 
   initial_split(prop = 0.8)
 training_data <- training(biomarker_split)
@@ -75,289 +74,37 @@ proteins_s2 <- rf_out$importance %>%
   slice_max(MeanDecreaseGini, n = 10) %>%
   pull(protein)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-################# Question 4 #####################
-set.seed(1078422)
-
-# function to compute tests
-test_fn <- function(.df){
-  t_test(.df, 
-         formula = level ~ group,
-         order = c('ASD', 'TD'),
-         alternative = 'two-sided',
-         var.equal = F)
-}
-
+##-----------LOGISTIC REGRESSION ----------
+# select subset of interest
+proteins_sstar <- intersect(proteins_s1, proteins_s2)
+
+biomarker_sstar <- training_data %>%
+  select(group, any_of(proteins_sstar)) %>%
+  mutate(class = (group == 'ASD')) %>%
+  select(-group)
+
+biomarker_split <- biomarker_sstar %>%
+  initial_split(prop = 0.8)
+
+
+# fit logistic regression model to training set
+fit <- glm(class ~ ., 
+           data = training(biomarker_split), 
+           family = 'binomial')
+
+# evaluate errors on test set
+class_metrics <- metric_set(sensitivity, 
+                            specificity, 
+                            accuracy,
+                            roc_auc)
+
+testing(biomarker_split) %>%
+  add_predictions(fit, type = 'response') %>%
+  mutate(est = as.factor(pred > 0.5), tr_c = as.factor(class)) %>%
+  class_metrics(estimate = est,
+                truth = tr_c, pred,
+                event_level = 'second')
+#---------------------------------------------------------------
 ttests_out <- biomarker_clean %>%
   # drop ADOS score
   select(-ados) %>%
@@ -380,61 +127,40 @@ ttests_out <- biomarker_clean %>%
 
 # select significant proteins
 proteins_s1 <- ttests_out %>%
-  slice_min(p.adj, n = 10) %>%
+  slice_min(p.adj, n = 16) %>%
   pull(protein)
 
-## LASSO REGRESSION
+## RANDOM FOREST
 ##################
 
-predictors <- biomarker_clean %>% 
-  select(-c(group, ados)) %>% 
-  as.matrix()
+# store predictors and response separately
+predictors <- biomarker_clean %>%
+  select(-c(group, ados))
 
-response <- biomarker_clean %>% 
-  pull(group) %>% as.factor()
+response <- biomarker_clean %>% pull(group) %>% factor()
 
-data_split <- initial_split(biomarker_clean, prop = 0.8)
-train_data <- training(data_split)  
-test_data <- testing(data_split)  
+# fit RF
+set.seed(101422)
+rf_out <- randomForest(x = predictors, 
+                       y = response, 
+                       ntree = 1000, 
+                       importance = T)
 
-train_predictors <- train_data %>% select(-c(group, ados)) %>% as.matrix()
-train_response <- train_data %>% pull(group) %>% as.factor()
+# check errors
+rf_out$confusion
 
-lasso_model <- cv.glmnet(
-  x = train_predictors,
-  y = train_response,
-  family = "binomial",
-  alpha = 1,         
-  nfolds = 10        
-)
-
-best_lambda <- lasso_model$lambda.min
-
-lasso_coeffs <- coef(lasso_model, s = best_lambda)
-
-lasso_df <- as.data.frame(as.matrix(lasso_coeffs)) %>%
-  rownames_to_column("protein")
-
-str(lasso_df)
-
-lasso_df <- lasso_df %>%
-  filter(protein != "(Intercept)") %>%
-  rename(coefficient = `s1`) %>%  
-  mutate(coefficient = as.numeric(coefficient))  
-
-top_10_proteins <- lasso_df %>%
-  mutate(abs_coef = abs(coefficient)) %>%
-  arrange(desc(abs_coef)) %>%
-  slice_head(n = 10) %>%
+# compute importance scores
+proteins_s2 <- rf_out$importance %>% 
+  as_tibble() %>%
+  mutate(protein = rownames(rf_out$importance)) %>%
+  slice_max(MeanDecreaseGini, n = 16) %>%
   pull(protein)
-
-top_10_proteins
 
 ## LOGISTIC REGRESSION
 #######################
 
 # select subset of interest
-proteins_sstar <- intersect(proteins_s1, top_10_proteins)
+proteins_sstar <- intersect(proteins_s1, proteins_s2)
 
 biomarker_sstar <- biomarker_clean %>%
   select(group, any_of(proteins_sstar)) %>%
@@ -461,7 +187,11 @@ testing(biomarker_split) %>%
   add_predictions(fit, type = 'response') %>%
   mutate(est = as.factor(pred > 0.5), tr_c = as.factor(class)) %>%
   class_metrics(estimate = est,
-              truth = tr_c, pred,
-              event_level = 'second')
-
-print(proteins_sstar)
+                truth = tr_c, pred,
+                event_level = 'second')
+# 
+# After changing the number of top predictive proteins to 16, 
+# We noticed the accuracy increased from 0.64 to 0.81,
+# This indicates that the model became better at correctly classifying instances of both ASD and typically developing controls as more predictive proteins were included in the analysis.
+# and the area under the curve also increased from 0.795 to 0.875.
+# Sensitivity increased from 0.462 to 0.812. And specificity decreased from 0.833 to 0.8.
