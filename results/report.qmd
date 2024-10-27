@@ -21,7 +21,7 @@ library(tidyverse)
 
 ## Abstract
 
-Write a brief one-paragraph abstract that describes the contents of your write-up.
+The analysis involved exploring protein levels in ASD and TD groups, testing various methodological approaches. First, raw protein distributions were log-transformed to address skewness and improve normality, making visualizations clearer. Outlier trimming showed that TD subjects had more outliers on average compared to ASD. Task 3 introduced different feature selection methods, including partitioning data, expanding the number of predictive proteins to 16 and using a fuzzy intersection combining t-test and Random Forest ranks. These changes impacted model accuracy, sensitivity, specificity, and area under the ROC. Additionally, using Lasso regression for feature selection yielded a simplified model with three key proteins—DERM, IgD, and FSTL1—achieving improved accuracy, sensitivity, and specificity over the previous analysis.
 
 ## Dataset
 
@@ -69,8 +69,10 @@ After increasing the number of top predictive proteins from 10 to 16, we observe
 
 *Fuzzy Intersection:*
 
-We ranked the proteins based on both t-test significance and Random Forest importance, resulting in a more balanced selection of predictive features. Unlike a strict intersection, which only retains proteins show in both methods, the fuzzy approach allows moderately important proteins from either method to be included, creating a more inclusive set of features. 
+We ranked the proteins based on both t-test significance and random forest importance, resulting in a more balanced selection of predictive features. Unlike a strict intersection, which only retains proteins show in both methods, the fuzzy approach allows moderately important proteins from either method to be included, creating a more inclusive set of features. Specifically, we ranked proteins from the t-test by ascending adjusted p-value and those from the Random Forest model by descending MeanDecreaseGini. We then selected the top 10 proteins based on a combined rank from both methods.
+
+Using this fuzzy intersection, we selected the top 10 proteins for the logistic regression model to classify ASD and TD groups. The final performance metrics are accuracy = 0.839, sensitivity = 0.812, specificity = 0.812, and area under the ROC = 0.921 Since the ROC_AUC with our fuzzy intersection is closer to 1 compared with the one in inclass analysis, our intersection gives us better model performance.
 
 ### Improved classifier
 
-We experiemented with a new approach where we used a Lasso regression to select the important proteins instead of the Random Forest method. We fit binomial Lasso model with alpha = 1 and 10 cross-validation folds. After fitting the model, we examined the coefficients for each protein and identified the ten with the largest absolute values, marking them as the most influential based on their strong association with the outcome. These were the proteins that the Lasso model demed to be the most important. Then, we took the common proteins between the multiple t-test and the ten from our lasso model for our final panel. We ended with a simpler model of 3 proteins that was comparable to the class-analysis: DERM, IgD, and FSTL1. This gave us an accuracy of 83.9%, Sensitivity = 87.5%, Specificity = 80%, Area under the ROC = 0.879.
+We experiemented with a new approach where we used a Lasso regression to select the important proteins instead of the Random Forest method. We fit binomial Lasso model with alpha = 1 and 10 cross-validation folds. After fitting the model, we examined the coefficients for each protein and identified the ten with the largest absolute values, marking them as the most influential based on their strong association with the outcome. These were the proteins that the Lasso model demend to be the most important. Then, we took the common proteins between the multiple t-test and the ten from our lasso model for our final panel. We ended with a simpler model of 3 proteins that was comparable to the class-analysis: DERM, IgD, and FSTL1. This gave us an accuracy of 83.9%, Sensitivity = 87.5%, Specificity = 80%, Area under the ROC = 0.879.
