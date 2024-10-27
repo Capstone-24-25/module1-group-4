@@ -127,6 +127,7 @@ proteins_s1 <- ttests_out %>%
   slice_min(p.adj, n = 10) %>%
   pull(protein)
 
+
 ##-----------random Forest ----------
 # store predictors and response separately
 predictors_train <- training_data %>%
@@ -150,6 +151,7 @@ proteins_s2 <- rf_out$importance %>%
   mutate(protein = rownames(rf_out$importance)) %>%
   slice_max(MeanDecreaseGini, n = 10) %>%
   pull(protein)
+
 
 ##-----------LOGISTIC REGRESSION ----------
 # select subset of interest
@@ -181,7 +183,8 @@ testing(biomarker_split) %>%
   class_metrics(estimate = est,
                 truth = tr_c, pred,
                 event_level = 'second')
-#---------------------------------------------------------------
+
+#-------------- larger number (more than ten) of top predictive proteins-----------------------------------------
 ttests_out <- biomarker_clean %>%
   # drop ADOS score
   select(-ados) %>%
@@ -236,7 +239,7 @@ proteins_s2 <- rf_out$importance %>%
 ## LOGISTIC REGRESSION
 #######################
 
-# select subset of interest
+# intersection
 proteins_sstar <- intersect(proteins_s1, proteins_s2)
 
 biomarker_sstar <- biomarker_clean %>%
@@ -266,16 +269,10 @@ testing(biomarker_split) %>%
   class_metrics(estimate = est,
                 truth = tr_c, pred,
                 event_level = 'second')
-# 
-# After changing the number of top predictive proteins to 16, 
-# We noticed the accuracy increased from 0.64 to 0.81,
-# This indicates that the model became better at correctly classifying instances of both ASD and typically developing controls as more predictive proteins were included in the analysis.
-# and the area under the curve also increased from 0.795 to 0.875.
-# Sensitivity increased from 0.462 to 0.812. And specificity decreased from 0.833 to 0.8.
+
 
 # fuzzy intersection ---------------------------------
 
-# Conduct t-tests on the dataset
 ttests_out <- biomarker_clean %>%
   # Drop ADOS score
   select(-ados) %>%
@@ -288,14 +285,17 @@ ttests_out <- biomarker_clean %>%
   # Compute t-tests
   mutate(ttest = map(data, test_fn)) %>%
   unnest(ttest) %>%
-  # Sort by p-value
-  arrange(p_value) %>%
   # Multiple testing correction
   mutate(m = n(),
          hm = log(m) + 1/(2*m) - digamma(1),
          rank_ttest = row_number(),
-         p.adj = m * hm * p_value / rank_ttest)
-
+         p.adj = m * hm * p_value / rank_ttest) %>%
+  # arrange by adjusted p-value
+  arrange(p.adj)%>%
+  mutate(rank_ttest = row_number())
+  
+  
+  
 # Rank proteins from t-tests
 ranked_ttest <- ttests_out %>%
   select(protein, rank_ttest)
@@ -311,7 +311,7 @@ response <- biomarker_clean %>%
   pull(group) %>% 
   factor()
 
-# Fit Random Forest model
+# Fit model
 set.seed(101422)
 rf_out <- randomForest(x = predictors, 
                        y = response, 
@@ -337,7 +337,7 @@ combined_ranks <- ranked_ttest %>%
   # Sort by the combined rank
   arrange(composite_rank)
 
-# Select top proteins based on the fuzzy intersection 
+# select top proteins 
 proteins_sstar <- combined_ranks %>%
   slice_min(composite_rank, n = 10) %>%
   pull(protein)
@@ -376,10 +376,6 @@ testing(biomarker_split) %>%
   class_metrics(estimate = est,
                 truth = tr_c, pred,
                 event_level = 'second')
-
-
-
-
 
 
 
