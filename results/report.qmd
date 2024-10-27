@@ -61,7 +61,7 @@ Task 3
 
 *Analysis on a training partition:*
 
-xxx
+Using our training data, the t-tests for identifying significant proteins revealed some shifts in the top-ranked proteins compared to the in-class version. Specifically, four out of the top ten proteins changed, from Calcineurin, IgD, PTN, and FSTL1 to TGF-b R III, OMD, Aldolase A, and P-Cadherin. When comparing the top-ranked proteins between the complete cleaned dataset and the training set using random forest method, only three proteins—DERM, TSP4, and MRC2—remained consistently among the top ten. For logistic regression, the sensitivity, accuracy, and AUROC metrics were lower with the training set, indicating a reduced performance in distinguishing ASD from TD cases.
 
 *Larger Number of top predictive proteins using each selection method:*
 
@@ -69,7 +69,7 @@ After increasing the number of top predictive proteins from 10 to 16, we observe
 
 *Fuzzy Intersection:*
 
-We ranked the proteins based on both t-test significance and Random Forest importance, resulting in a more balanced selection of predictive features. Unlike a strict intersection, which only retains proteins highly ranked in both methods, the fuzzy approach allows moderately important proteins from either method to be included, creating a more inclusive set of features.
+We ranked the proteins based on both t-test significance and Random Forest importance, resulting in a more balanced selection of predictive features. Unlike a strict intersection, which only retains proteins show in both methods, the fuzzy approach allows moderately important proteins from either method to be included, creating a more inclusive set of features. 
 
 ### Improved classifier
 
