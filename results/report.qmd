@@ -35,6 +35,14 @@ In the Random Forest method, feature importance scores were calculated to determ
 
 The five core proteins are: mitogen-activated protein kinase 14 (MAPK14), immunoglobulin D (IgD), dermatopontin (DERM), ephrin type-B receptor 2 (EPHB2), and soluble urokinase-type plasminogen activator receptor (suPAR). Four additional proteins—receptor tyrosine kinase-like orphan receptor 1 (ROR1), platelet receptor Gl24 (GI24), eukaryotic translation initiation factor 4H (elF-4H), and arylsulfatase B (ARSB)—were selected to enhance predictive power. The final classifier, comprising these nine proteins, achieved an estimated accuracy with an area under the receiver operating characteristic curve (AUC) of 0.86, indicating strong discriminating ability for identifying ASD.
 
+```{mermaid}
+flowchart TB
+  A[1125 proteins] -->|t-test| B(top-10 proteins with the lowest adjusted p-values) --> |The overlapped proteins|D[MAPK14, IgD, DERM, EPHB2, suPAR]
+  A --> |random forest|C(top-10 proteins with highest importance) --> |The overlapped proteins|D --> |Logistic regression|E[AUC = 0.86]
+F(4 additional proteins) -.-> |enhance predictive power|E
+
+```
+
 ## Findings
 
 ### Impact of preprocessing and outliers
