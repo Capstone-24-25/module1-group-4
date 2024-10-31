@@ -1,14 +1,7 @@
-library(tidyverse)
-library(infer)
-install.packages("randomForest")
-library(randomForest)
-library(tidymodels)
-library(modelr)
-library(yardstick)
-load('data/biomarker-clean.RData')
 
-## MULTIPLE TESTING
-####################
+
+################# Question 4 #####################
+set.seed(1078422)
 
 # function to compute tests
 test_fn <- function(.df){
@@ -44,37 +37,58 @@ proteins_s1 <- ttests_out %>%
   slice_min(p.adj, n = 10) %>%
   pull(protein)
 
-## RANDOM FOREST
+## LASSO REGRESSION
 ##################
 
-# store predictors and response separately
-predictors <- biomarker_clean %>%
-  select(-c(group, ados))
+predictors <- biomarker_clean %>% 
+  select(-c(group, ados)) %>% 
+  as.matrix()
 
-response <- biomarker_clean %>% pull(group) %>% factor()
+response <- biomarker_clean %>% 
+  pull(group) %>% as.factor()
 
-# fit RF
-set.seed(101422)
-rf_out <- randomForest(x = predictors, 
-                       y = response, 
-                       ntree = 1000, 
-                       importance = T)
+data_split <- initial_split(biomarker_clean, prop = 0.8)
+train_data <- training(data_split)  
+test_data <- testing(data_split)  
 
-# check errors
-rf_out$confusion
+train_predictors <- train_data %>% select(-c(group, ados)) %>% as.matrix()
+train_response <- train_data %>% pull(group) %>% as.factor()
 
-# compute importance scores
-proteins_s2 <- rf_out$importance %>% 
-  as_tibble() %>%
-  mutate(protein = rownames(rf_out$importance)) %>%
-  slice_max(MeanDecreaseGini, n = 10) %>%
+lasso_model <- cv.glmnet(
+  x = train_predictors,
+  y = train_response,
+  family = "binomial",
+  alpha = 1,         
+  nfolds = 10        
+)
+
+best_lambda <- lasso_model$lambda.min
+
+lasso_coeffs <- coef(lasso_model, s = best_lambda)
+
+lasso_df <- as.data.frame(as.matrix(lasso_coeffs)) %>%
+  rownames_to_column("protein")
+
+str(lasso_df)
+
+lasso_df <- lasso_df %>%
+  filter(protein != "(Intercept)") %>%
+  rename(coefficient = `s1`) %>%  
+  mutate(coefficient = as.numeric(coefficient))  
+
+top_10_proteins <- lasso_df %>%
+  mutate(abs_coef = abs(coefficient)) %>%
+  arrange(desc(abs_coef)) %>%
+  slice_head(n = 10) %>%
   pull(protein)
+
+top_10_proteins
 
 ## LOGISTIC REGRESSION
 #######################
 
 # select subset of interest
-proteins_sstar <- intersect(proteins_s1, proteins_s2)
+proteins_sstar <- intersect(proteins_s1, top_10_proteins)
 
 biomarker_sstar <- biomarker_clean %>%
   select(group, any_of(proteins_sstar)) %>%
@@ -101,5 +115,8 @@ testing(biomarker_split) %>%
   add_predictions(fit, type = 'response') %>%
   mutate(est = as.factor(pred > 0.5), tr_c = as.factor(class)) %>%
   class_metrics(estimate = est,
-              truth = tr_c, pred,
-              event_level = 'second')
+                truth = tr_c, pred,
+                event_level = 'second')
+
+print(proteins_sstar)
+

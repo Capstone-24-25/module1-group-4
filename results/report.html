@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.433">
+<meta name="generator" content="quarto-1.5.57">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="List names here">
-<meta name="dcterms.date" content="2023-10-27">
+<meta name="author" content="Sophia Mirrashidi, Jiaxin Su, Sumeng Xu, Parker Reedy">
+<meta name="dcterms.date" content="2024-10-27">
 
 <title>Biomarkers of ASD</title>
 <style>
@@ -35,6 +35,9 @@ ul.task-list li input[type="checkbox"] {
 <script src="report_files/libs/bootstrap/bootstrap.min.js"></script>
 <link href="report_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="report_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="report_files/libs/quarto-diagram/mermaid.min.js"></script>
+<script src="report_files/libs/quarto-diagram/mermaid-init.js"></script>
+<link href="report_files/libs/quarto-diagram/mermaid.css" rel="stylesheet">
 
 
 </head>
@@ -48,7 +51,7 @@ ul.task-list li input[type="checkbox"] {
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
 <h1 class="title">Biomarkers of ASD</h1>
-<p class="subtitle lead">If you want a subtitle put it here</p>
+<p class="subtitle lead">Module-1 Group 4</p>
 </div>
 
 
@@ -58,14 +61,14 @@ ul.task-list li input[type="checkbox"] {
     <div>
     <div class="quarto-title-meta-heading">Author</div>
     <div class="quarto-title-meta-contents">
-             <p>List names here </p>
+             <p>Sophia Mirrashidi, Jiaxin Su, Sumeng Xu, Parker Reedy </p>
           </div>
   </div>
     
     <div>
     <div class="quarto-title-meta-heading">Updated</div>
     <div class="quarto-title-meta-contents">
-      <p class="date">October 27, 2023</p>
+      <p class="date">October 27, 2024</p>
     </div>
   </div>
   
@@ -73,35 +76,67 @@ ul.task-list li input[type="checkbox"] {
   </div>
   
 
+
 </header>
 
-<p>Use this as a template. Keep the headers and remove all other text. In all, your report can be quite short. When it is complete, render and then push changes to your team repository.</p>
+
 <section id="abstract" class="level2">
 <h2 class="anchored" data-anchor-id="abstract">Abstract</h2>
-<p>Write a brief one-paragraph abstract that describes the contents of your write-up.</p>
+<p>The analysis involved exploring protein levels in ASD and TD groups, testing various methodological approaches. First, raw protein distributions were log-transformed to address skewness and improve normality, making visualizations clearer. Outlier trimming showed that TD subjects had more outliers on average compared to ASD. Task 3 introduced different feature selection methods, including partitioning data, expanding the number of predictive proteins to 16 and using a fuzzy intersection combining t-test and Random Forest ranks. These changes impacted model accuracy, sensitivity, specificity, and area under the ROC. Additionally, using Lasso regression for feature selection yielded a simplified model with three key proteins—DERM, IgD, and FSTL1—achieving improved accuracy, sensitivity, and specificity over the previous analysis.</p>
 </section>
 <section id="dataset" class="level2">
 <h2 class="anchored" data-anchor-id="dataset">Dataset</h2>
-<p>Write a brief data description, including: how data were obtained; sample characteristics; variables measured; and data preprocessing. This can be largely based on the source paper and should not exceed 1-2 paragraphs.</p>
+<p>The data used in this study was obtained from voluntary participants who provided blood samples for analysis. A total of 154 male children were included in the study, with 76 boys diagnosed with ASD and 78 boys who were considered typically developed. The mean age in the group was 5.7 years old, and the most common ethnicity was White, though other ethnicities included were African American, Asian American, and Hispanic, among others. Demographic data about the participants was also collected surrounding any prevailing clinical conditions and medications being used. A total of 1,317 proteins were measured from the blood samples obtained, but 192 of those proteins were not considered suitable and were dropped from the analysis, leaving 1,125 proteins included in the study. The protein data was normalized by a log10 transform and a z transform, with any observations that exceeded a +3 or a -3 value after the z transformation being dropped as outliers.</p>
 </section>
 <section id="summary-of-published-analysis" class="level2">
 <h2 class="anchored" data-anchor-id="summary-of-published-analysis">Summary of published analysis</h2>
-<p>Summarize the methodology of the paper in 1-3 paragraphs. You need not explain the methods in depth as we did in class; just indicate what methods were used and how they were combined. If possible, include a diagram that depicts the methodological design. (Quarto has support for <a href="https://quarto.org/docs/authoring/diagrams.html">GraphViz and Mermaid flowcharts</a>.) Provide key results: the proteins selected for the classifier and the estimated accuracy.</p>
+<p>Serum samples from boys with ASD and typically developing (TD) controls were analyzed using the SOMAScan™ platform, measuring 1,125 proteins after quality control. The methodology involved three primary statistical approaches to identify potential biomarkers: Random Forest (RF), t-tests, and correlation analysis with ADOS scores, a measure of ASD severity.</p>
+<p>In the Random Forest method, feature importance scores were calculated to determine the most relevant proteins for distinguishing ASD from TD. The t-tests compared protein levels between the two groups to identify significant differences, while the correlation analysis sought proteins associated with ASD severity. The study combined the three methods by identifying the top 10 predictive proteins from each and cross-comparing them to find overlapping proteins consistently showing high importance. Five proteins were identified as a core set, and an additional 13 proteins were tested one by one to see if they increased the predictive value of the AUC using logistic regression. The classifier’s performance was evaluated with repeated random splits of training and testing data.</p>
+<p>The five core proteins are: mitogen-activated protein kinase 14 (MAPK14), immunoglobulin D (IgD), dermatopontin (DERM), ephrin type-B receptor 2 (EPHB2), and soluble urokinase-type plasminogen activator receptor (suPAR). Four additional proteins—receptor tyrosine kinase-like orphan receptor 1 (ROR1), platelet receptor Gl24 (GI24), eukaryotic translation initiation factor 4H (elF-4H), and arylsulfatase B (ARSB)—were selected to enhance predictive power. The final classifier, comprising these nine proteins, achieved an estimated accuracy with an area under the receiver operating characteristic curve (AUC) of 0.86, indicating strong discriminating ability for identifying ASD.</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart TB
+  A[1125 proteins] --&gt;|t-test| B(top-10 proteins with the lowest adjusted p-values) --&gt; |The overlapped proteins|D[MAPK14, IgD, DERM, EPHB2, suPAR]
+  A --&gt; |random forest|C(top-10 proteins with highest importance) --&gt; |The overlapped proteins|D --&gt; |Logistic regression|E[AUC = 0.86]
+F(4 additional proteins) -.-&gt; |enhance predictive power|E
+
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
 </section>
 <section id="findings" class="level2">
 <h2 class="anchored" data-anchor-id="findings">Findings</h2>
-<p>Summarize your findings here. I’ve included some subheaders in a way that seems natural to me; you can structure this section however you like.</p>
 <section id="impact-of-preprocessing-and-outliers" class="level3">
 <h3 class="anchored" data-anchor-id="impact-of-preprocessing-and-outliers">Impact of preprocessing and outliers</h3>
-<p>Tasks 1-2</p>
+<p>Task 1</p>
+<p>Below are three randomly selected proteins from our raw data, and the distributions that they follow. We can see below that the distributions of these protein levels are quite skewed. By applying a log transformation to the values, it compresses the data and typically makes data more normally distributed. It also makes visualizations easier to read with the smaller numbers.</p>
+<p><img src="images/clipboard-3580837191.png" class="img-fluid" width="477"></p>
+<p><img src="images/clipboard-1254653915.png" class="img-fluid" width="477"></p>
+<p><img src="images/clipboard-2037070351.png" class="img-fluid" width="476"></p>
+<p>Task 2</p>
+<p>For task 2, we temporarily removed the outlier trimming from preprocessing and looked at the number of outliers per subject. We found that out of the 5 subjects with the highest number of outliers, 3 of them were from the Typically developed group. After finding this, we wanted to check the mean number of protein value outliers by group and found that on average a subject in group TD had 22.78 outlier values while the ASD group had on average 18.36 outliers.</p>
+<p><img src="images/clipboard-2172377393.png" class="img-fluid"></p>
 </section>
-<section id="methodlogical-variations" class="level3">
-<h3 class="anchored" data-anchor-id="methodlogical-variations">Methodlogical variations</h3>
+<section id="methodological-variations" class="level3">
+<h3 class="anchored" data-anchor-id="methodological-variations">Methodological variations</h3>
 <p>Task 3</p>
+<p><em>Analysis on a training partition:</em></p>
+<p>Using our training data, the t-tests for identifying significant proteins revealed some shifts in the top-ranked proteins compared to the in-class version. Specifically, four out of the top ten proteins changed, from Calcineurin, IgD, PTN, and FSTL1 to TGF-b R III, OMD, Aldolase A, and P-Cadherin. When comparing the top-ranked proteins between the complete cleaned dataset and the training set using random forest method, only three proteins—DERM, TSP4, and MRC2—remained consistently among the top ten. For logistic regression, the sensitivity, accuracy, and AUROC metrics were lower with the training set, indicating a reduced performance in distinguishing ASD from TD cases.</p>
+<p><em>Larger Number of top predictive proteins using each selection method:</em></p>
+<p>After increasing the number of top predictive proteins from 10 to 16, we observed improvement in the model’s performance metrics. The accuracy of the model increased from 0.774 to 0.81, indicating that the model became better at correctly classifying instances of both ASD and typically developing controls as more predictive proteins were included in the analysis. The area under the curve (AUC) decreased slightly from 0.883 to 0.875, indicating a minimal reduction in the model’s ability to discriminate between positive and negative cases overall. Sensitivity remained constant at 0.812, meaning the model’s ability to correctly identify positive cases did not change. Lastly, specificity had a notable increase from 0.733 to 0.8, suggesting a reduction in false positives. Overall, the model’s modifications improved specificity and accuracy. Despite a slight AUC decline, the balance between sensitivity and specificity indicates fewer errors in identifying typically developing individuals as having ASD.</p>
+<p><em>Fuzzy Intersection:</em></p>
+<p>We ranked the proteins based on both t-test significance and random forest importance, resulting in a more balanced selection of predictive features. Unlike a strict intersection, which only retains proteins show in both methods, the fuzzy approach allows moderately important proteins from either method to be included, creating a more inclusive set of features. Specifically, we ranked proteins from the t-test by ascending adjusted p-value and those from the Random Forest model by descending MeanDecreaseGini. We then selected the top 10 proteins based on a combined rank from both methods.</p>
+<p>Using this fuzzy intersection, we selected the top 10 proteins for the logistic regression model to classify ASD and TD groups. The final performance metrics are accuracy = 0.839, sensitivity = 0.812, specificity = 0.812, and area under the ROC = 0.921 Since the ROC_AUC with our fuzzy intersection is closer to 1 compared with the one in inclass analysis, our intersection gives us better model performance.</p>
 </section>
 <section id="improved-classifier" class="level3">
 <h3 class="anchored" data-anchor-id="improved-classifier">Improved classifier</h3>
-<p>Task 4</p>
+<p>We experiemented with a new approach where we used a Lasso regression to select the important proteins instead of the Random Forest method. We fit binomial Lasso model with alpha = 1 and 10 cross-validation folds. After fitting the model, we examined the coefficients for each protein and identified the ten with the largest absolute values, marking them as the most influential based on their strong association with the outcome. These were the proteins that the Lasso model demend to be the most important. Then, we took the common proteins between the multiple t-test and the ten from our lasso model for our final panel. We ended with a simpler model of 3 proteins that was comparable to the class-analysis: DERM, IgD, and FSTL1. This gave us an accuracy of 83.9%, Sensitivity = 87.5%, Specificity = 80%, Area under the ROC = 0.879.</p>
 </section>
 </section>
 
@@ -142,18 +177,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
     return false;
   }
-  const clipboard = new window.ClipboardJS('.code-copy-button', {
-    text: function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
-    }
-  });
-  clipboard.on('success', function(e) {
+  const onCopySuccess = function(e) {
     // button target
     const button = e.trigger;
     // don't keep focus
@@ -185,11 +209,50 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }, 1000);
     // clear code selection
     e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
   });
-  function tippyHover(el, contentFn) {
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
-      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -199,8 +262,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start'
+      placement: 'bottom-start',
     };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -212,7 +284,130 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       try { href = new URL(href).hash; } catch {}
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
-      return note.innerHTML;
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
     });
   }
       let selectedAnnoteEl;
@@ -256,6 +451,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             }
             div.style.top = top - 2 + "px";
             div.style.height = height + 4 + "px";
+            div.style.left = 0;
             let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
             if (gutterDiv === null) {
               gutterDiv = window.document.createElement("div");
@@ -281,6 +477,32 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         });
         selectedAnnoteEl = undefined;
       };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
       // Attach click handler to the DT
       const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
       for (const annoteDlNode of annoteDls) {
@@ -341,6 +563,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 });
 </script>
 </div> <!-- /content -->
+
 
 
 
